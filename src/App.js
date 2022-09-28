@@ -4,10 +4,7 @@ import "trix/dist/trix.css";
 
 import { TrixEditor } from "react-trix";
 
-function save() {
-  const trixEditor = document.querySelector("trix-editor")
-  console.log(trixEditor.innerHTML)
-}
+import SaveButton from './components/save';
 
 function App() {
   return (
@@ -17,7 +14,7 @@ function App() {
       </header>
       <div className="App-editor">
         <div className="App-toolbar">
-          <input id="save" name="save" value={"Spara"} onClick={save}></input>
+          <SaveButton></SaveButton>
         </div>
         <TrixEditor id="trixEditorContent" className="trix-editor" toolbar="trix-toolbar"></TrixEditor>
       </div>
