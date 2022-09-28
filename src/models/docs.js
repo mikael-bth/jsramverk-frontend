@@ -1,36 +1,39 @@
+const baseURL = 'http://localhost:1337/'
+
 const docs = {
     getAllDocs: async function getAllDocs() {
-        const response = await fetch('localhost:1337/docs');
+        const response = await fetch(`${baseURL}docs`);
         const result = await response.json();
 
-        return result.data;
+        return result;
     },
 
     getDoc: async function getDoc(name) {
-        const response = await fetch(`localhost:1337/doc/${name}`);
+        const response = await fetch(`${baseURL}doc/${name}`);
         const result = await response.json();
 
-        return result.data;
+        return result;
     },
 
     createDoc: async function createDoc(newDoc) {
-        const response = await fetch('localhost:1337/create', {
-            method: "POST",
-            body: JSON.stringify(newDoc),
-            headers: {
-                'content-type': 'application/json'
-            },
+        const response = await fetch(`${baseURL}create`, {
+            method: 'POST',
+            body: JSON.stringify(newDoc)
         });
     },
 
     updateDoc: async function updateDoc(updatedDoc) {
-        const response = await fetch('localhost:1337/update', {
-            method: "PUT",
-            body: JSON.stringify(updatedDoc),
-            headers: {
-                'content-type': 'application/json'
-            },
+        const docTest = {
+            name: updatedDoc.name,
+            html: updatedDoc.html
+        }
+        console.log(docTest);
+        const response = await fetch(`${baseURL}update`, {
+            method: 'PUT',
+            body: JSON.stringify(docTest),
+            headers: { 'content-type': 'application/json' },
         });
+        console.log(response);
     },
 };
 

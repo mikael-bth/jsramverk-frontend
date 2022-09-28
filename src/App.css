@@ -18,13 +18,23 @@
   align-items: center;
 }
 
+#docSelect {
+  font-size: 16px;
+  height: 30px;
+}
+
+#load {
+  font-size: 16px;
+  height: 30px;
+  width: 120px;
+  border-radius: 10%;
+}
+
 #save {
-  font-size: 20px;
-  height: 50px;
-  width: 60px;
-  color: white;
-  background-color: red;
-  border-radius: 30%;
+  font-size: 16px;
+  height: 30px;
+  width: 45px;
+  border-radius: 10%;
 }
 
 .trix-editor {

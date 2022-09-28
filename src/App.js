@@ -4,7 +4,7 @@ import "trix/dist/trix.css";
 
 import { TrixEditor } from "react-trix";
 
-import SaveButton from './components/save';
+import DocToolbar from './components/doctools';
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
       </header>
       <div className="App-editor">
         <div className="App-toolbar">
-          <SaveButton></SaveButton>
+          { DocToolbar() }
         </div>
         <TrixEditor id="trixEditorContent" className="trix-editor" toolbar="trix-toolbar"></TrixEditor>
       </div>
