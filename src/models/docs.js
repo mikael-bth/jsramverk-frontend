@@ -18,22 +18,19 @@ const docs = {
     createDoc: async function createDoc(newDoc) {
         const response = await fetch(`${baseURL}create`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newDoc)
         });
+        return response.status;
     },
 
     updateDoc: async function updateDoc(updatedDoc) {
-        const docTest = {
-            name: updatedDoc.name,
-            html: updatedDoc.html
-        }
-        console.log(docTest);
         const response = await fetch(`${baseURL}update`, {
             method: 'PUT',
-            body: JSON.stringify(docTest),
-            headers: { 'content-type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedDoc),
         });
-        console.log(response);
+        return response.status;
     },
 };
 
