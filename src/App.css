@@ -37,6 +37,45 @@
   border-radius: 10%;
 }
 
+#docCreate {
+  display: none;
+  position: absolute; 
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: space-around;
+  top: calc(50% - 150px);
+  left: calc(50% - (270px / 2));
+  height: 300px;
+  width: 270px;
+  background-color: rgb(129, 129, 129);
+  border: 1px solid #000;
+  z-index: 2;
+}
+
+#docCreate #name {
+  height: 40px;
+  width: 200px;
+}
+
+#docCreate #create {
+  height: 60px;
+  width: 120px;
+  border-radius: 10%;
+  font-size: 20px;
+  text-align: center;
+}
+
+#docCreateBG {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  background-color: rgba(102, 102, 102, 0.5);
+  width: 100%;
+  height: 100%;
+}
+
 .trix-editor {
   height: 400px;
 }

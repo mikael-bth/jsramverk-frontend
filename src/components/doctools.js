@@ -31,24 +31,72 @@ function DocToolbar() {
     async function saveDoc() {
         const trixEditor = document.querySelector("trix-editor")
         if (Object.keys(currentDoc).length === 0) {
-            console.log("empty")
+            const createWindow = document.getElementById("docCreate");
+            const createBG = document.getElementById("docCreateBG");
+            createWindow.style.display = "flex"
+            createBG.style.display = "block"
+            return;
         }
         const updatedDoc = {
             name: currentDoc.name,
             html: trixEditor.innerHTML
         }
-        console.log(updatedDoc);
         await docsModel.updateDoc(updatedDoc);
+    }
+
+    async function createDoc() {
+        const docName = document.getElementById("name").value;
+
+        if (docName === "") {
+            alert("Inget namn valt");
+            return;
         }
+        if (nameTaken()) {
+            alert("Ett dokument med det namnet finns redan");
+            return;
+        }
+
+        const trixEditor = document.querySelector("trix-editor")
+
+        const newDoc = {
+            name: docName,
+            html: trixEditor.innerHTML
+        }
+        await docsModel.createDoc(newDoc);
+        setCurrentDoc(newDoc);
+        closeCreate();
+
+        function nameTaken() {
+            let taken = false;
+            for (const doc of docs) {
+                if (doc.name === docName) {
+                    taken = true;
+                }
+            }
+            return taken;
+        }
+    }
+
+    function closeCreate() {
+        const createWindow = document.getElementById("docCreate");
+        const createBG = document.getElementById("docCreateBG");
+        createWindow.style.display = "none"
+        createBG.style.display = "none"
+    }
 
     return <div>
         <select id="docSelect">
             <option value="-99" key="0">Nytt dokument</option>
             {docs.map((doc, index) => <option value={doc.name} key={index}>{doc.name}</option>)}
-        </select>;
+        </select>
         <input id="load" name="load" value={"Ladda dokument"} onClick={loadDoc}></input>
-        <input id="save" name="save" value={"Spara"} onClick={saveDoc}></input>;
-    </div>
+        <input id="save" name="save" value={"Spara"} onClick={saveDoc}></input>
+        <div id="docCreateBG" onClick={closeCreate}></div>
+        <div id="docCreate">
+            <input id="name" name="name" type="text" placeholder="NAMN"></input>
+            <input id="create" name="create" value={"Spara"} onClick={createDoc}></input>
+        </div>
+    </div>;
 }
 
 export default DocToolbar;
