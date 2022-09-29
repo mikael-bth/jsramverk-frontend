@@ -17,15 +17,18 @@ function DocToolbar() {
     async function loadDoc() {
         const trixEditor = document.querySelector("trix-editor")
         const docSelect = document.getElementById("docSelect")
+        const activeDoc = document.getElementById("activeDoc");
         const selectedDoc = docSelect.options[docSelect.selectedIndex].value;
         if (selectedDoc === "-99") {
             setCurrentDoc({});
+            activeDoc.innerHTML = "";
             trixEditor.innerHTML = "";
             return;
         }
         const loadedDoc = await docsModel.getDoc(selectedDoc);
         setCurrentDoc(loadedDoc[0]);
         trixEditor.innerHTML = loadedDoc[0].html;
+        activeDoc.innerHTML = loadedDoc[0].name;
     }
 
     async function saveDoc() {
@@ -57,6 +60,7 @@ function DocToolbar() {
         }
 
         const trixEditor = document.querySelector("trix-editor")
+        const activeDoc = document.getElementById("activeDoc");
 
         const newDoc = {
             name: docName,
@@ -64,6 +68,7 @@ function DocToolbar() {
         }
         await docsModel.createDoc(newDoc);
         setCurrentDoc(newDoc);
+        activeDoc.innerHTML = docName;
         closeCreate();
 
         function nameTaken() {
@@ -84,7 +89,8 @@ function DocToolbar() {
         createBG.style.display = "none"
     }
 
-    return <div>
+    return <div className="docToolbar">
+        <p id="activeDoc"></p>
         <select id="docSelect">
             <option value="-99" key="0">Nytt dokument</option>
             {docs.map((doc, index) => <option value={doc.name} key={index}>{doc.name}</option>)}
