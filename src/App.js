@@ -1,9 +1,7 @@
 import './App.css';
-import "trix";
 import "trix/dist/trix.css";
 
-import { TrixEditor } from "react-trix";
-
+import Editor from './components/editor';
 import DocToolbar from './components/doctools';
 
 function App() {
@@ -16,7 +14,7 @@ function App() {
         <div className="App-toolbar">
           { DocToolbar() }
         </div>
-        <TrixEditor id="trixEditorContent" className="trix-editor" toolbar="trix-toolbar"></TrixEditor>
+        <Editor></Editor>
       </div>
       <footer className="App-footer">
         <h3>JSRamverk Editor : Mikael Menonen</h3>

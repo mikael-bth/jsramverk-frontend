@@ -1,8 +1,20 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('Load document button exists ', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+
+  expect(screen.getByDisplayValue(/Ladda dokument/i)).toBeInTheDocument();
+});
+
+test('Save document button exists ', () => {
+  const { container } = render(<App />);
+
+  expect(container.querySelector('#save')).toBeInTheDocument();
+});
+
+test('Document select exists ', () => {
+  const { container } = render(<App />);
+
+  expect(container.querySelector('#docSelect')).toBeInTheDocument();
 });

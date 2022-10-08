@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:1337/'
+let baseURL = 'http://localhost:1337/'
 if (window.location.href.includes("student")) {
     baseURL = 'https://jsramverk-editor-mimn21.azurewebsites.net/';
 }

@@ -9,6 +9,10 @@
   min-height: 500px;
 }
 
+#trix-toolbar {
+  display: none;
+}
+
 .App-toolbar {
   height: 70px;
   width: 100%;
