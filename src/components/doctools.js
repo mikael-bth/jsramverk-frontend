@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
 import Editor from './editor';
@@ -10,6 +10,7 @@ function DocToolbar() {
     const [socket, setSocket] = useState(null);
     const [docLoaded, setDocLoaded] = useState(false);
     const trixEditor = document.querySelector("trix-editor");
+    const cursorPos = useRef([]);
 
     useEffect(() => {
         (async () => {
@@ -22,7 +23,12 @@ function DocToolbar() {
         });
 
         socket.on("doc", (doc) => {
-            trixEditor.innerHTML = doc.html;
+            if (doc.html !== trixEditor.innerHTML) {
+                cursorPos.current = trixEditor.editor.getSelectedRange();
+                trixEditor.editor.setSelectedRange([0, 0]);
+                trixEditor.innerHTML = doc.html;
+                trixEditor.editor.setSelectedRange(cursorPos.current);
+            }
         });
 
         if (Object.keys(currentDoc).length !== 0) {
@@ -71,10 +77,8 @@ function DocToolbar() {
             return;
         }
 
-        const updatedDoc = {
-            name: currentDoc.name,
-            html: trixEditor.innerHTML
-        }
+        const updatedDoc = currentDoc;
+        updatedDoc.html = trixEditor.innerHTML
         await docsModel.updateDoc(updatedDoc);
     }
 
