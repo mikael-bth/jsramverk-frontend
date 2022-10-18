@@ -114,6 +114,11 @@ function DocToolbar() {
         }
     }
 
+    async function reloadDocSelect() {
+        const allDocs = await docsModel.getAllDocs();
+        setDocs(allDocs);
+    }
+
     function closeCreate() {
         const createWindow = document.getElementById("docCreate");
         const createBG = document.getElementById("docCreateBG");
@@ -123,6 +128,7 @@ function DocToolbar() {
 
     return <div>
     <div className="docToolbar">
+        <button id="reload" name="reload" value={"&#8635;"} onClick={reloadDocSelect}>&#8635;</button>
         <p id="activeDoc"></p>
         <select id="docSelect">
             <option value="-99" key="0">-- Dokument -- </option>
