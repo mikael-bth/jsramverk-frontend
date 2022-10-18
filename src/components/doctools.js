@@ -9,7 +9,6 @@ function DocToolbar() {
     const [currentDoc, setCurrentDoc] = useState({});
     const [socket, setSocket] = useState(null);
     const [docLoaded, setDocLoaded] = useState(false);
-    const trixEditor = document.querySelector("trix-editor");
     const cursorPos = useRef([]);
 
     useEffect(() => {
@@ -23,9 +22,9 @@ function DocToolbar() {
         });
 
         socket.on("doc", (doc) => {
+            const trixEditor = document.querySelector("trix-editor");
             if (doc.html !== trixEditor.innerHTML) {
                 cursorPos.current = trixEditor.editor.getSelectedRange();
-                trixEditor.editor.setSelectedRange([0, 0]);
                 trixEditor.innerHTML = doc.html;
                 trixEditor.editor.setSelectedRange(cursorPos.current);
             }
@@ -42,20 +41,18 @@ function DocToolbar() {
         };
     }, [currentDoc]);
 
-    function editorReady() {
-        console.log("Editor Ready");
-    }
-
-    function handleEditorChange(html, text) {
+    async function handleEditorChange(html, text) {
         if (docLoaded) {
             const updatedDoc = currentDoc;
             updatedDoc.html = html;
             socket.emit("doc", updatedDoc);
+            await docsModel.updateDoc(updatedDoc);
         }
     }
 
     async function loadDoc() {
         setDocLoaded(false);
+        const trixEditor = document.querySelector("trix-editor");
         const docSelect = document.getElementById("docSelect");
         const selectedDoc = docSelect.options[docSelect.selectedIndex].value;
         if (selectedDoc === "-99") {
@@ -69,17 +66,6 @@ function DocToolbar() {
         trixEditor.innerHTML = loadedDoc[0].html;
         activeDoc.innerHTML = loadedDoc[0].name;
         setDocLoaded(true);
-    }
-
-    async function saveDoc() {
-        if (Object.keys(currentDoc).length === 0) {
-            openCreate();
-            return;
-        }
-
-        const updatedDoc = currentDoc;
-        updatedDoc.html = trixEditor.innerHTML
-        await docsModel.updateDoc(updatedDoc);
     }
 
     async function openCreate() {
@@ -103,6 +89,7 @@ function DocToolbar() {
         }
 
         const activeDoc = document.getElementById("activeDoc");
+        const trixEditor = document.querySelector("trix-editor");
 
         let newDoc = {
             name: docName,
@@ -143,14 +130,13 @@ function DocToolbar() {
         </select>
         <input id="load" name="load" value={"Ladda dokument"} onClick={loadDoc}></input>
         <input id="new"  name="new"  value={"Nytt dokument"}  onClick={openCreate}></input>
-        <input id="save" name="save" value={"Spara"}  onClick={saveDoc}></input>
         <div id="docCreateBG" onClick={closeCreate}></div>
         <div id="docCreate">
             <input id="name" name="name" type="text" placeholder="NAMN"></input>
             <input id="create" name="create" value={"Skapa"} onClick={createDoc}></input>
         </div>
     </div>
-    <Editor handleReady={editorReady} handleChange={handleEditorChange}></Editor>
+    <Editor handleChange={handleEditorChange}></Editor>
     </div>;
 }
 

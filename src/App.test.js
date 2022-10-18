@@ -7,10 +7,10 @@ test('Load document button exists ', () => {
   expect(screen.getByDisplayValue(/Ladda dokument/i)).toBeInTheDocument();
 });
 
-test('Save document button exists ', () => {
+test('New document button exists ', () => {
   const { container } = render(<App />);
 
-  expect(container.querySelector('#save')).toBeInTheDocument();
+  expect(container.querySelector('#new')).toBeInTheDocument();
 });
 
 test('Document select exists ', () => {
