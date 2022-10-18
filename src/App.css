@@ -41,16 +41,26 @@
 }
 
 #load {
+  text-align: center;
   font-size: 16px;
   height: 30px;
-  width: 120px;
+  width: 125px;
+  border-radius: 10%;
+}
+
+#new {
+  text-align: center;
+  font-size: 16px;
+  height: 30px;
+  width: 110px;
   border-radius: 10%;
 }
 
 #save {
-  font-size: 16px;
+  text-align: center;
+  font-size: 18px;
   height: 30px;
-  width: 45px;
+  width: 55px;
   border-radius: 10%;
 }
 

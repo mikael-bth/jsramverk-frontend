@@ -7,8 +7,7 @@ class Editor extends React.Component {
     console.log("Editor ready!")
   }
   handleChange(html, text) {
-    // html is the new html content
-    // text is the new text content
+    
   }
   render() {
     return (
