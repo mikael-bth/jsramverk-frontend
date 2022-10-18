@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
+import Editor from './editor';
 import docsModel from '../models/docs';
 
 function DocToolbar() {
     const [docs, setDocs] = useState([]);
     const [currentDoc, setCurrentDoc] = useState({});
     const [socket, setSocket] = useState(null);
+    const [docLoaded, setDocLoaded] = useState(false);
     const trixEditor = document.querySelector("trix-editor");
-
 
     useEffect(() => {
         (async () => {
@@ -17,22 +18,38 @@ function DocToolbar() {
         })();
         const socket = io(docsModel.getURL());
         socket.on("connect", () => {
-            console.log(socket.id);
             setSocket(socket);
         });
 
+        socket.on("doc", (doc) => {
+            trixEditor.innerHTML = doc.html;
+        });
+
+        if (Object.keys(currentDoc).length !== 0) {
+            socket.emit("create", currentDoc["_id"]);
+            socket.emit("doc", currentDoc);
+        }
+        
         return () => {
-            console.log("here");
             socket.disconnect();
             setSocket(null);
         };
     }, [currentDoc]);
 
-    useEffect(() => {
+    function editorReady() {
+        console.log("Editor Ready");
+    }
 
-    })
+    function handleEditorChange(html, text) {
+        if (docLoaded) {
+            const updatedDoc = currentDoc;
+            updatedDoc.html = html;
+            socket.emit("doc", updatedDoc);
+        }
+    }
 
     async function loadDoc() {
+        setDocLoaded(false);
         const docSelect = document.getElementById("docSelect");
         const selectedDoc = docSelect.options[docSelect.selectedIndex].value;
         if (selectedDoc === "-99") {
@@ -41,10 +58,11 @@ function DocToolbar() {
 
         const activeDoc = document.getElementById("activeDoc");
         const loadedDoc = await docsModel.getDoc(selectedDoc);
-        
+
         setCurrentDoc(loadedDoc[0]);
         trixEditor.innerHTML = loadedDoc[0].html;
         activeDoc.innerHTML = loadedDoc[0].name;
+        setDocLoaded(true);
     }
 
     async function saveDoc() {
@@ -68,6 +86,7 @@ function DocToolbar() {
     }
 
     async function createDoc() {
+        setDocLoaded(false);
         const docName = document.getElementById("name").value;
 
         if (docName === "") {
@@ -88,7 +107,9 @@ function DocToolbar() {
         const response = await docsModel.createDoc(newDoc);
         newDoc["_id"] = response.id;
         setCurrentDoc(newDoc);
+        trixEditor.innerHTML = "";
         activeDoc.innerHTML = docName;
+        setDocLoaded(true);
         closeCreate();
 
         function nameTaken() {
@@ -109,7 +130,8 @@ function DocToolbar() {
         createBG.style.display = "none"
     }
 
-    return <div className="docToolbar">
+    return <div>
+    <div className="docToolbar">
         <p id="activeDoc"></p>
         <select id="docSelect">
             <option value="-99" key="0">-- Dokument -- </option>
@@ -123,6 +145,8 @@ function DocToolbar() {
             <input id="name" name="name" type="text" placeholder="NAMN"></input>
             <input id="create" name="create" value={"Skapa"} onClick={createDoc}></input>
         </div>
+    </div>
+    <Editor handleReady={editorReady} handleChange={handleEditorChange}></Editor>
     </div>;
 }
 

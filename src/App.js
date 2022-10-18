@@ -1,7 +1,6 @@
 import './App.css';
 import "trix/dist/trix.css";
 
-import Editor from './components/editor';
 import DocToolbar from './components/doctools';
 
 function App() {
@@ -11,10 +10,7 @@ function App() {
         <h1>JSRamverk Editor</h1>
       </header>
       <div className="App-editor">
-        <div className="App-toolbar">
-          { DocToolbar() }
-        </div>
-        <Editor></Editor>
+        { DocToolbar() }
       </div>
       <footer className="App-footer">
         <h3>JSRamverk Editor : Mikael Menonen</h3>
