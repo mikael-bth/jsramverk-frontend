@@ -10,7 +10,7 @@ class Editor extends React.Component {
     return (
       <div>
         <trix-toolbar id="trix-toolbar"></trix-toolbar>
-        <TrixEditor onChange={this.props.handleChange} onEditorReady={this.editorReady} id="trixEditorContent" className="trix-editor" toolbar="trix-toolbar" />
+        <TrixEditor onEditorReady={this.editorReady} onChange={this.props.handleChange} id="trixEditorContent" className="trix-editor" toolbar="trix-toolbar" />
       </div>
     );
   }

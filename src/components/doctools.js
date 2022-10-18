@@ -128,18 +128,18 @@ function DocToolbar() {
 
     return <div>
     <div className="docToolbar">
-        <button id="reload" name="reload" value={"&#8635;"} onClick={reloadDocSelect}>&#8635;</button>
+        <button id="reload" name="reload" value={"&#8635;"} onClick={reloadDocSelect} readOnly>&#8635;</button>
         <p id="activeDoc"></p>
-        <select id="docSelect">
-            <option value="-99" key="0">-- Dokument -- </option>
-            {docs.map((doc, index) => <option value={doc.name} key={index}>{doc.name}</option>)}
+        <select id="docSelect" readOnly>
+            <option value="-99" key="0" readOnly>-- Dokument -- </option>
+            {docs.map((doc, index) => <option value={doc.name} key={index} readOnly>{doc.name}</option>)}
         </select>
-        <input id="load" name="load" value={"Ladda dokument"} onClick={loadDoc}></input>
-        <input id="new"  name="new"  value={"Nytt dokument"}  onClick={openCreate}></input>
+        <input id="load" name="load" value={"Ladda dokument"} onClick={loadDoc} readOnly></input>
+        <input id="new"  name="new"  value={"Nytt dokument"}  onClick={openCreate} readOnly></input>
         <div id="docCreateBG" onClick={closeCreate}></div>
         <div id="docCreate">
-            <input id="name" name="name" type="text" placeholder="NAMN"></input>
-            <input id="create" name="create" value={"Skapa"} onClick={createDoc}></input>
+            <input id="name" name="name" type="text" placeholder="NAMN" readOnly></input>
+            <input id="create" name="create" value={"Skapa"} onClick={createDoc} readOnly></input>
         </div>
     </div>
     <Editor handleChange={handleEditorChange}></Editor>
