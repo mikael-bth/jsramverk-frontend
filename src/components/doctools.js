@@ -12,6 +12,18 @@ function DocToolbar() {
     const cursorPos = useRef([]);
 
     useEffect(() => {
+        if (sessionStorage.getItem("logOut")) {
+            setCurrentDoc({})
+            const trixEditor = document.querySelector("trix-editor");
+            const activeDoc = document.getElementById("activeDoc");
+            trixEditor.innerHTML = "";
+            activeDoc.innerHTML = "";
+            trixEditor.editor.setSelectedRange(0, 0);
+            sessionStorage.removeItem("logOut");
+        }
+    })
+
+    useEffect(() => {
         (async () => {
             const allDocs = await docsModel.getAllDocs();
             setDocs(allDocs);
@@ -60,12 +72,15 @@ function DocToolbar() {
         }
 
         const activeDoc = document.getElementById("activeDoc");
-        const loadedDoc = await docsModel.getDoc(selectedDoc);
-
-        setCurrentDoc(loadedDoc[0]);
-        trixEditor.innerHTML = loadedDoc[0].html;
-        activeDoc.innerHTML = loadedDoc[0].name;
-        setDocLoaded(true);
+        try {
+            const loadedDoc = await docsModel.getDoc(selectedDoc);
+            setCurrentDoc(loadedDoc[0]);
+            trixEditor.innerHTML = loadedDoc[0].html;
+            activeDoc.innerHTML = loadedDoc[0].name;
+            setDocLoaded(true);
+        } catch (error) {
+            alert(error);
+        }
     }
 
     async function openCreate() {
@@ -95,12 +110,17 @@ function DocToolbar() {
             name: docName,
             html: trixEditor.innerHTML
         }
-        const response = await docsModel.createDoc(newDoc);
-        newDoc["_id"] = response.id;
-        setCurrentDoc(newDoc);
-        trixEditor.innerHTML = "";
-        activeDoc.innerHTML = docName;
-        setDocLoaded(true);
+        try {
+            const response = await docsModel.createDoc(newDoc);
+            newDoc["_id"] = response.id;
+            setCurrentDoc(newDoc);
+            trixEditor.innerHTML = "";
+            activeDoc.innerHTML = docName;
+            setDocLoaded(true);
+        } catch (error) {
+            alert(error);
+        }
+        
         closeCreate();
 
         function nameTaken() {

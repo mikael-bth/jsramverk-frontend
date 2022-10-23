@@ -25,8 +25,7 @@ const users = {
     verifyToken: async function verifyToken(token) {
         const response = await fetch(`${SERVER_URL}verify`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json',
-            'x-access-token': token},
+            headers: { 'x-access-token': token},
         });
         return await response.json();
     },

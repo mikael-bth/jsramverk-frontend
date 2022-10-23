@@ -11,6 +11,7 @@ function UserToolbar() {
         return () => {
             (async () => {
                 const token = usersModel.getToken();
+                console.log(token);
                 if (token) {
                     const result = await usersModel.verifyToken(token);
                     if (!result.message) {
@@ -24,7 +25,6 @@ function UserToolbar() {
     useEffect(() => {
         const formContainer = document.querySelector("#formContainer");
         const containerHeight = formContainer.clientHeight;
-        console.log(containerHeight);
         const containerElement = document.getElementById("formContainer");
         const heightOffset = containerHeight / 2;
         containerElement.style.top = `calc(50% - ${heightOffset}px)`;
@@ -90,6 +90,7 @@ function UserToolbar() {
             case "Logga ut": {
                 setUser(null);
                 usersModel.logOut();
+                sessionStorage.setItem("logOut", "1");
                 closeForm();
                 break;
             }
@@ -100,7 +101,6 @@ function UserToolbar() {
                     password: data.target.form[2].value
                 }
                 const res = await usersModel.login(user);
-                console.log(res.token);
                 if (res.message) {
                     alert(res.message);
                     break;
