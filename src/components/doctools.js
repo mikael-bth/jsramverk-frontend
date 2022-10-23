@@ -138,7 +138,7 @@ function DocToolbar() {
         <input id="new"  name="new"  value={"Nytt dokument"}  onClick={openCreate} readOnly></input>
         <div id="docCreateBG" onClick={closeCreate}></div>
         <div id="docCreate">
-            <input id="name" name="name" type="text" placeholder="NAMN" readOnly></input>
+            <input id="name" name="name" type="text" placeholder="NAMN"></input>
             <input id="create" name="create" value={"Skapa"} onClick={createDoc} readOnly></input>
         </div>
     </div>
