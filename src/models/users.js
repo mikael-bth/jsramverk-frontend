@@ -22,8 +22,25 @@ const users = {
         return await response.json();
     },
 
-    getURL: function getURL() {
-        return SERVER_URL;
+    verifyToken: async function verifyToken(token) {
+        const response = await fetch(`${SERVER_URL}verify`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json',
+            'x-access-token': token},
+        });
+        return await response.json();
+    },
+
+    logOut: function logOut() {
+        sessionStorage.removeItem("token")
+    },
+
+    setToken: function setToken(token) {
+        sessionStorage.setItem("token", token)
+    },
+
+    getToken: function getToken() {
+        return sessionStorage.getItem("token");
     },
 };
 

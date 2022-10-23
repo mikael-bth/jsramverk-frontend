@@ -6,6 +6,21 @@ function UserToolbar() {
     const [user, setUser] = useState(null);
     const [formFields, setFormFields] = useState(null);
 
+    let loaded = false;
+    useEffect(() => {
+        return () => {
+            (async () => {
+                const token = usersModel.getToken();
+                if (token) {
+                    const result = await usersModel.verifyToken(token);
+                    if (!result.message) {
+                        setUser(result.data.username);
+                    }
+                }
+            })();
+        }
+    }, [loaded]);
+
     useEffect(() => {
         const formContainer = document.querySelector("#formContainer");
         const containerHeight = formContainer.clientHeight;
@@ -14,6 +29,8 @@ function UserToolbar() {
         const heightOffset = containerHeight / 2;
         containerElement.style.top = `calc(50% - ${heightOffset}px)`;
     }, [formFields]);
+
+    loaded = true;
 
     function userLogin() {
         const formBG = document.getElementById("formBG");
@@ -44,7 +61,7 @@ function UserToolbar() {
         const formContainer = document.getElementById("formContainer");
         formBG.style.display = "block";
         formContainer.style.display = "flex"
-        const loginFields = <fieldset>
+        const registerFields = <fieldset>
             <legend>Register</legend>
             <label htmlFor="username">Användarnamn:</label>
             <input id="username" name="username" type="text"></input>
@@ -52,26 +69,44 @@ function UserToolbar() {
             <input id="password" name="password" type="password"></input>
             <input id="submit" name="submit" value={"Registrera"} onClick={sendForm} readOnly></input>
         </fieldset>
-        setFormFields(loginFields);
+        setFormFields(registerFields);
     }
 
     function userLogOut() {
-
+        const formBG = document.getElementById("formBG");
+        const formContainer = document.getElementById("formContainer");
+        formBG.style.display = "block";
+        formContainer.style.display = "flex"
+        const logOutFields = <fieldset>
+            <legend>Log out</legend>
+            <input id="username" name="username" type="text" value={user} readOnly></input>
+            <input id="submit" name="submit" value={"Logga ut"} onClick={sendForm} readOnly></input>
+        </fieldset>
+        setFormFields(logOutFields);
     }
 
     async function sendForm(data) {
         switch (data.target.value) {
+            case "Logga ut": {
+                setUser(null);
+                usersModel.logOut();
+                closeForm();
+                break;
+            }
+
             case "Logga in": {
                 const user = {
                     username: data.target.form[1].value,
                     password: data.target.form[2].value
                 }
                 const res = await usersModel.login(user);
+                console.log(res.token);
                 if (res.message) {
                     alert(res.message);
                     break;
                 }
                 setUser(user.username);
+                usersModel.setToken(res.token);
                 closeForm();
                 break;
             }
