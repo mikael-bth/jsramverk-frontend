@@ -98,7 +98,7 @@
 
 #docInfo {
   position: absolute;
-  top: calc(5em + 30px);
+  top: calc(5em + 35px);
   left: 10px;
 }
 
@@ -117,18 +117,39 @@
 #docPermission {
   display: none;
   position: absolute;
-    top: calc(5em + 22px);
-    left: 0;
-    width: 260px;
-    height: auto;
-    padding: 10px;
-    background-color: rgb(112, 112, 112);
-    z-index: 1;
-    border: black solid 2px;
+  top: calc(5em + 22px);
+  left: 0;
+  width: 280px;
+  height: auto;
+  max-height: 300px;
+  padding: 10px;
+  background-color: whitesmoke;
+  z-index: 1;
+  border: black solid 2px;
+}
+
+#docPermission #permissionHeader {
+  display: block;
+}
+
+#docPermission #permissionHeader button {
+  float: left;
+}
+
+#docPermission #permissionHeader p {
+  text-align: center;
+}
+
+#docPermission ul {
+  padding-left: 10px;
+  max-height: 190px;
+  overflow-y: scroll;
 }
 
 #docPermission li {
   margin: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid;
 }
 
 #docPermission li button {
@@ -138,17 +159,19 @@
 
 #docPermission div {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
 }
 
 #docPermission #newUser {
   width: 120px;
   font-size: 16px;
+  text-align: center;
 }
 
 #docPermission #addUser {
   width: 80px;
   font-size: 20px;
+  text-align: center;
 }
 
 #reload {

@@ -6,18 +6,19 @@ function UserToolbar() {
     const [user, setUser] = useState(null);
     const [formFields, setFormFields] = useState(null);
 
-    useEffect(() => {
-        return async () => {
-            const token = usersModel.getToken();
-            console.log(token);
-            if (token) {
-                const result = await usersModel.verifyToken(token);
-                if (!result.message) {
-                    setUser(result.data.username);
-                }
-            } 
+    if (user === null && usersModel.getToken()) {
+        const token = usersModel.getToken();
+        verifyUser(token);
+    }
+
+    async function verifyUser(token) {
+        const result = await usersModel.verifyToken(token);
+        if (!result.message) {
+            setUser(result.data.username);
+            return;
         }
-    }, [user]);
+        usersModel.logOut();
+    }
 
     useEffect(() => {
         const formContainer = document.querySelector("#formContainer");

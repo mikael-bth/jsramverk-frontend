@@ -7,24 +7,22 @@ import docsModel from '../models/docs';
 function DocToolbar() {
     const [docs, setDocs] = useState([]);
     const [currentDoc, setCurrentDoc] = useState({});
+    const [activeDocName, setActiveDocName] = useState("");
     const [socket, setSocket] = useState(null);
     const [docLoaded, setDocLoaded] = useState(false);
     const cursorPos = useRef([]);
     const [docUsers, setDocUsers] = useState([]);
 
-    useEffect(() => {
-        if (sessionStorage.getItem("logOut")) {
-            sessionStorage.removeItem("logOut");
-            setCurrentDoc({})
-            const trixEditor = document.querySelector("trix-editor");
-            const activeDoc = document.getElementById("activeDoc");
-            const docPermission = document.getElementById("openPermission");
-            trixEditor.innerHTML = "";
-            activeDoc.innerHTML = "";
-            docPermission.style.display = "none";
-            trixEditor.editor.setSelectedRange(0, 0);
-        }
-    }, [])
+    if (sessionStorage.getItem("logOut")) {
+        sessionStorage.removeItem("logOut");
+        const trixEditor = document.querySelector("trix-editor");
+        const docPermission = document.getElementById("openPermission");
+        trixEditor.innerHTML = "";
+        trixEditor.editor.setSelectedRange(0, 0);
+        docPermission.style.display = "none";
+        setActiveDocName("");
+        setCurrentDoc({})
+    }
 
     useEffect(() => {
         (async () => {
@@ -53,12 +51,10 @@ function DocToolbar() {
 
     function setEditorText(html) {
         const trixEditor = document.querySelector("trix-editor");
-        if (html !== trixEditor.innerHTML) {
-            cursorPos.current = trixEditor.editor.getSelectedRange();
-            trixEditor.editor.setSelectedRange(0, 0);
-            trixEditor.innerHTML = html;
-            trixEditor.editor.setSelectedRange(cursorPos.current);
-        }
+        cursorPos.current = trixEditor.editor.getSelectedRange();
+        trixEditor.editor.setSelectedRange(0, 0);
+        trixEditor.innerHTML = html;
+        trixEditor.editor.setSelectedRange(cursorPos.current);
     }
 
     async function handleEditorChange(html, text) {
@@ -72,21 +68,20 @@ function DocToolbar() {
 
     async function loadDoc() {
         setDocLoaded(false);
-        const trixEditor = document.querySelector("trix-editor");
         const docSelect = document.getElementById("docSelect");
         const selectedDoc = docSelect.options[docSelect.selectedIndex].value;
         if (selectedDoc === "-99") {
             return;
         }
 
-        const activeDoc = document.getElementById("activeDoc");
+        const trixEditor = document.querySelector("trix-editor");
         const docPermission = document.getElementById("openPermission");
         try {
             const loadedDoc = await docsModel.getDoc(selectedDoc);
             setCurrentDoc(loadedDoc[0]);
             setDocUsers(loadedDoc[0].users);
             trixEditor.innerHTML = loadedDoc[0].html;
-            activeDoc.innerHTML = loadedDoc[0].name;
+            setActiveDocName(loadedDoc[0].name);
             docPermission.style.display = "block";
             setDocLoaded(true);
         } catch (error) {
@@ -114,7 +109,6 @@ function DocToolbar() {
             return;
         }
 
-        const activeDoc = document.getElementById("activeDoc");
         const docPermission = document.getElementById("openPermission");
         const trixEditor = document.querySelector("trix-editor");
 
@@ -128,7 +122,7 @@ function DocToolbar() {
             setCurrentDoc(newDoc);
             setDocUsers([result.user]);
             trixEditor.innerHTML = "";
-            activeDoc.innerHTML = docName;
+            setActiveDocName(docName);
             docPermission.style.display = "block";
             setDocLoaded(true);
         } catch (error) {
@@ -205,11 +199,10 @@ function DocToolbar() {
             updatedDoc = await docsModel.getDoc(currentDoc.name);
         } catch (e) {
             alert(e);
-            const activeDoc = document.getElementById("activeDoc");
             const docPermission = document.getElementById("openPermission");
             const trixEditor = document.querySelector("trix-editor");
             trixEditor.innerHTML = "";
-            activeDoc.innerHTML = "";
+            setActiveDocName("");
             docPermission.style.display = "none";
             closePermission();
             setCurrentDoc({});
@@ -223,11 +216,14 @@ function DocToolbar() {
     <div className="docToolbar">
         <button id="reload" name="reload" onClick={reloadDocSelect} readOnly>&#8635;</button>
         <div id="docInfo">
-            <p id="activeDoc"></p>
+            <p id="activeDoc">{activeDocName}</p>
             <button id="openPermission" name="openPermission" onClick={openPermission} title="Change document permissions" readOnly>&#128101;</button>
         </div>
         <div id="docPermission">
-            <button id="closePermission" name="closePermission" onClick={closePermission} readOnly>&#10006;</button>
+            <div id="permissionHeader">
+                <button id="closePermission" name="closePermission" onClick={closePermission} readOnly>&#10006;</button>
+                <p>{activeDocName}s allowed users</p>
+            </div>
             <ul>
                 {docUsers.map((user, index) => <li value={user} key={index} readOnly>
                     {user}
