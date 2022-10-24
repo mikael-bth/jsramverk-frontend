@@ -96,11 +96,59 @@
   margin: 5px;
 }
 
-#activeDoc {
+#docInfo {
   position: absolute;
   top: calc(5em + 30px);
   left: 10px;
+}
+
+#activeDoc {
   color: #fff;
+  float: left;
+  margin: 10px;
+}
+
+#openPermission {
+  display: none;
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+#docPermission {
+  display: none;
+  position: absolute;
+    top: calc(5em + 22px);
+    left: 0;
+    width: 260px;
+    height: auto;
+    padding: 10px;
+    background-color: rgb(112, 112, 112);
+    z-index: 1;
+    border: black solid 2px;
+}
+
+#docPermission li {
+  margin: 10px;
+}
+
+#docPermission li button {
+  float: right;
+  color: red;
+}
+
+#docPermission div {
+  display: flex;
+  justify-content: space-between;
+}
+
+#docPermission #newUser {
+  width: 120px;
+  font-size: 16px;
+}
+
+#docPermission #addUser {
+  width: 80px;
+  font-size: 20px;
 }
 
 #reload {

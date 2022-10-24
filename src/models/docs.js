@@ -52,6 +52,15 @@ const docs = {
         return response.status;
     },
 
+    updatePermission: async function updatePermission(update) {
+        const response = await fetch(`${SERVER_URL}updatepermission`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify(update),
+        });
+        return response.status;
+    },
+
     getURL: function getURL() {
         return SERVER_URL;
     },

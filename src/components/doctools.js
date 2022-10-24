@@ -10,18 +10,21 @@ function DocToolbar() {
     const [socket, setSocket] = useState(null);
     const [docLoaded, setDocLoaded] = useState(false);
     const cursorPos = useRef([]);
+    const [docUsers, setDocUsers] = useState([]);
 
     useEffect(() => {
         if (sessionStorage.getItem("logOut")) {
+            sessionStorage.removeItem("logOut");
             setCurrentDoc({})
             const trixEditor = document.querySelector("trix-editor");
             const activeDoc = document.getElementById("activeDoc");
+            const docPermission = document.getElementById("openPermission");
             trixEditor.innerHTML = "";
             activeDoc.innerHTML = "";
+            docPermission.style.display = "none";
             trixEditor.editor.setSelectedRange(0, 0);
-            sessionStorage.removeItem("logOut");
         }
-    })
+    }, [])
 
     useEffect(() => {
         (async () => {
@@ -34,12 +37,7 @@ function DocToolbar() {
         });
 
         socket.on("doc", (doc) => {
-            const trixEditor = document.querySelector("trix-editor");
-            if (doc.html !== trixEditor.innerHTML) {
-                cursorPos.current = trixEditor.editor.getSelectedRange();
-                trixEditor.innerHTML = doc.html;
-                trixEditor.editor.setSelectedRange(cursorPos.current);
-            }
+            setEditorText(doc.html);
         });
 
         if (Object.keys(currentDoc).length !== 0) {
@@ -52,6 +50,16 @@ function DocToolbar() {
             setSocket(null);
         };
     }, [currentDoc]);
+
+    function setEditorText(html) {
+        const trixEditor = document.querySelector("trix-editor");
+        if (html !== trixEditor.innerHTML) {
+            cursorPos.current = trixEditor.editor.getSelectedRange();
+            trixEditor.editor.setSelectedRange(0, 0);
+            trixEditor.innerHTML = html;
+            trixEditor.editor.setSelectedRange(cursorPos.current);
+        }
+    }
 
     async function handleEditorChange(html, text) {
         if (docLoaded) {
@@ -72,11 +80,14 @@ function DocToolbar() {
         }
 
         const activeDoc = document.getElementById("activeDoc");
+        const docPermission = document.getElementById("openPermission");
         try {
             const loadedDoc = await docsModel.getDoc(selectedDoc);
             setCurrentDoc(loadedDoc[0]);
+            setDocUsers(loadedDoc[0].users);
             trixEditor.innerHTML = loadedDoc[0].html;
             activeDoc.innerHTML = loadedDoc[0].name;
+            docPermission.style.display = "block";
             setDocLoaded(true);
         } catch (error) {
             alert(error);
@@ -104,6 +115,7 @@ function DocToolbar() {
         }
 
         const activeDoc = document.getElementById("activeDoc");
+        const docPermission = document.getElementById("openPermission");
         const trixEditor = document.querySelector("trix-editor");
 
         let newDoc = {
@@ -111,11 +123,13 @@ function DocToolbar() {
             html: trixEditor.innerHTML
         }
         try {
-            const response = await docsModel.createDoc(newDoc);
-            newDoc["_id"] = response.id;
+            const result = await docsModel.createDoc(newDoc);
+            newDoc["_id"] = result.id;
             setCurrentDoc(newDoc);
+            setDocUsers([result.user]);
             trixEditor.innerHTML = "";
             activeDoc.innerHTML = docName;
+            docPermission.style.display = "block";
             setDocLoaded(true);
         } catch (error) {
             alert(error);
@@ -146,10 +160,85 @@ function DocToolbar() {
         createBG.style.display = "none"
     }
 
+    function openPermission() {
+        const permissionWindow = document.getElementById("docPermission");
+        permissionWindow.style.display = "block";
+    }
+
+    function closePermission() {
+        const permissionWindow = document.getElementById("docPermission");
+        permissionWindow.style.display = "none";
+    }
+
+    async function addUserPermission() {
+        const newUser = document.getElementById("newUser").value;
+        if (newUser === "") return;
+        if (currentDoc.users.includes(newUser)) {
+            alert("User already has permission to edit this document");
+            return;
+        }
+        const update = {
+            name: currentDoc.name,
+            user: newUser,
+            method: "add"
+        }
+        await docsModel.updatePermission(update);
+        const updatedDoc = await docsModel.getDoc(currentDoc.name);
+        setCurrentDoc(updatedDoc[0]);
+        setDocUsers(updatedDoc[0].users);
+    }
+
+    async function removeUserPermission(data) {
+        if (currentDoc.users.length === 1) {
+            alert("Can't remove, you need atleast one user with permission to the document");
+            return;
+        }
+        const user = data.target.value;
+        const update = {
+            name: currentDoc.name,
+            user: user,
+            method: "remove"
+        }
+        await docsModel.updatePermission(update);
+        let updatedDoc
+        try {
+            updatedDoc = await docsModel.getDoc(currentDoc.name);
+        } catch (e) {
+            alert(e);
+            const activeDoc = document.getElementById("activeDoc");
+            const docPermission = document.getElementById("openPermission");
+            const trixEditor = document.querySelector("trix-editor");
+            trixEditor.innerHTML = "";
+            activeDoc.innerHTML = "";
+            docPermission.style.display = "none";
+            closePermission();
+            setCurrentDoc({});
+            return;
+        }
+        setCurrentDoc(updatedDoc[0]);
+        setDocUsers(updatedDoc[0].users);
+    }
+
     return <div>
     <div className="docToolbar">
-        <button id="reload" name="reload" value={"&#8635;"} onClick={reloadDocSelect} readOnly>&#8635;</button>
-        <p id="activeDoc"></p>
+        <button id="reload" name="reload" onClick={reloadDocSelect} readOnly>&#8635;</button>
+        <div id="docInfo">
+            <p id="activeDoc"></p>
+            <button id="openPermission" name="openPermission" onClick={openPermission} title="Change document permissions" readOnly>&#128101;</button>
+        </div>
+        <div id="docPermission">
+            <button id="closePermission" name="closePermission" onClick={closePermission} readOnly>&#10006;</button>
+            <ul>
+                {docUsers.map((user, index) => <li value={user} key={index} readOnly>
+                    {user}
+                    <button value={user} onClick={removeUserPermission} title={`Ta bort ${user}`} readOnly>&#10006;</button>
+                </li>)}
+            </ul>
+            <div>
+                <input id="newUser" name="newUser" placeholder="Ny användare" type="text"></input>
+                <input id="addUser" name="addUser" value={"Lägg till"} onClick={addUserPermission} readOnly></input>
+            </div>
+        </div>
         <select id="docSelect" readOnly>
             <option value="-99" key="0" readOnly>-- Dokument -- </option>
             {docs.map((doc, index) => <option value={doc.name} key={index} readOnly>{doc.name}</option>)}

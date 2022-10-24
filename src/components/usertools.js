@@ -6,21 +6,18 @@ function UserToolbar() {
     const [user, setUser] = useState(null);
     const [formFields, setFormFields] = useState(null);
 
-    let loaded = false;
     useEffect(() => {
-        return () => {
-            (async () => {
-                const token = usersModel.getToken();
-                console.log(token);
-                if (token) {
-                    const result = await usersModel.verifyToken(token);
-                    if (!result.message) {
-                        setUser(result.data.username);
-                    }
+        return async () => {
+            const token = usersModel.getToken();
+            console.log(token);
+            if (token) {
+                const result = await usersModel.verifyToken(token);
+                if (!result.message) {
+                    setUser(result.data.username);
                 }
-            })();
+            } 
         }
-    }, [loaded]);
+    }, [user]);
 
     useEffect(() => {
         const formContainer = document.querySelector("#formContainer");
@@ -29,8 +26,6 @@ function UserToolbar() {
         const heightOffset = containerHeight / 2;
         containerElement.style.top = `calc(50% - ${heightOffset}px)`;
     }, [formFields]);
-
-    loaded = true;
 
     function userLogin() {
         const formBG = document.getElementById("formBG");
