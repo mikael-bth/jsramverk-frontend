@@ -6,11 +6,17 @@ if (window.location.href.includes("student")) {
 }
 
 const docs = {
-    getAllDocs: async function getAllDocs() {
-        const response = await fetch(`${SERVER_URL}docs`);
+    getDocNameList: async function getDocNameList() {
+        const response = await fetch(`${SERVER_URL}graphql`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ query: "{ docs { name } }" }),
+        });
         const result = await response.json();
-
-        return result;
+        return result.data.docs;
     },
 
     getDoc: async function getDoc(name) {

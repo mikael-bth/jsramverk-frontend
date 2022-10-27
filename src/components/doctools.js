@@ -26,7 +26,8 @@ function DocToolbar() {
 
     useEffect(() => {
         (async () => {
-            const allDocs = await docsModel.getAllDocs();
+            const allDocs = await docsModel.getDocNameList();
+            console.log(allDocs);
             setDocs(allDocs);
         })();
         const socket = io(docsModel.getURL());
@@ -114,15 +115,15 @@ function DocToolbar() {
 
         let newDoc = {
             name: docName,
-            html: trixEditor.innerHTML
+            html: ""
         }
         try {
-            const result = await docsModel.createDoc(newDoc);
-            newDoc["_id"] = result.id;
-            setCurrentDoc(newDoc);
-            setDocUsers([result.user]);
-            trixEditor.innerHTML = "";
+            await docsModel.createDoc(newDoc);
+            const createdDoc = await docsModel.getDoc(newDoc.name);
+            setCurrentDoc(createdDoc[0]);
+            setDocUsers(createdDoc[0].users);
             setActiveDocName(docName);
+            trixEditor.innerHTML = "";
             docPermission.style.display = "block";
             setDocLoaded(true);
         } catch (error) {
@@ -143,7 +144,7 @@ function DocToolbar() {
     }
 
     async function reloadDocSelect() {
-        const allDocs = await docsModel.getAllDocs();
+        const allDocs = await docsModel.getDocNameList();
         setDocs(allDocs);
     }
 
