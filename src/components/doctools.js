@@ -16,7 +16,7 @@ function DocToolbar() {
 
     if (sessionStorage.getItem("logOut")) {
         sessionStorage.removeItem("logOut");
-        closeLoadedDoc();
+        window.location.reload();
     }
 
     useEffect(() => {
@@ -45,6 +45,7 @@ function DocToolbar() {
     }, [currentDoc]);
 
     async function handleEditorChange(html, text) {
+        console.log(docLoaded);
         if (docLoaded) {
             const updatedDoc = currentDoc;
             updatedDoc.html = html;
@@ -67,30 +68,18 @@ function DocToolbar() {
     }
 
     function openLoadedDoc(loadedDoc) {
-        setDocLoaded(false);
-        setCurrentDoc(loadedDoc);
-        setDocUsers(loadedDoc.users);
-        setEditorText(loadedDoc.html);
-        setActiveDocName(loadedDoc.name);
-        setDocLoaded(true);
         const docPermission = document.getElementById("openPermission");
         const pdfButton = document.getElementById("createPDF");
         docPermission.style.display = "block";
         pdfButton.style.display = "block";
-    }
-
-    function closeLoadedDoc() {
-        clearEditorText();
-        setActiveDocName("");
-        closePermission();
-        setCurrentDoc({});
-        const docPermission = document.getElementById("openPermission");
-        const pdfButton = document.getElementById("createPDF");
-        docPermission.style.display = "none";
-        pdfButton.style.display = "none";
+        setDocUsers(loadedDoc.users);
+        setEditorText(loadedDoc.html);
+        setActiveDocName(loadedDoc.name);
+        setCurrentDoc(loadedDoc);
     }
 
     async function loadDoc() {
+        setDocLoaded(false);
         const docSelect = document.getElementById("docSelect");
         const selectedDoc = docSelect.options[docSelect.selectedIndex].value;
         if (selectedDoc === "-99") {
@@ -100,12 +89,14 @@ function DocToolbar() {
         try {
             const loadedDoc = await docsModel.getDoc(selectedDoc);
             openLoadedDoc(loadedDoc[0]);
+            setDocLoaded(true);
         } catch (error) {
             alert(error);
         }
     }
 
     async function createDoc() {
+        setDocLoaded(false);
         const docName = document.getElementById("name").value;
 
         if (docName === "") {
@@ -125,6 +116,7 @@ function DocToolbar() {
             await docsModel.createDoc(newDoc);
             const createdDoc = await docsModel.getDoc(newDoc.name);
             openLoadedDoc(createdDoc[0]);
+            setDocLoaded(true);
         } catch (error) {
             alert(error);
         }
@@ -177,8 +169,8 @@ function DocToolbar() {
             setCurrentDoc(updatedDoc[0]);
             setDocUsers(updatedDoc[0].users);
         } catch (e) {
+            window.location.reload();
             alert(e);
-            closeLoadedDoc();
         }
     }
 
@@ -254,7 +246,17 @@ function DocToolbar() {
             <input id="create" name="create" value={"Skapa"} onClick={createDoc} readOnly></input>
         </div>
     </div>
-    <Editor handleChange={handleEditorChange}></Editor>
+    <div className="editorContainer">
+        <Editor handleChange={handleEditorChange}></Editor>
+        <div className="commentsContainer">
+            <div>
+
+            </div>
+            <div>
+                <h2>Comments</h2>
+            </div>
+        </div>
+    </div>
     </div>;
 }
 

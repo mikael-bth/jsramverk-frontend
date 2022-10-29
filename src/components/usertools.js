@@ -86,7 +86,7 @@ function UserToolbar() {
             case "Logga ut": {
                 setUser(null);
                 usersModel.logOut();
-                sessionStorage.setItem("logOut", "1");
+                sessionStorage.setItem("logOut", "true");
                 closeForm();
                 break;
             }

@@ -5,8 +5,28 @@
   text-align: center;
 }
 
-.App-editor {
+.editorContainer {
+  display: grid;
+  grid-template-columns: 80% 20%;
+}
+
+trix-editor {
   min-height: 500px;
+  max-height: 550px;
+  overflow-y: scroll;
+}
+
+trix-editor::-webkit-scrollbar {
+  display: none;
+}
+
+.commentsContainer {
+  display: grid;
+  grid-template-columns: 10% 90%;
+}
+
+.commentsContainer h2 {
+  text-align: center;
 }
 
 #trix-toolbar {
@@ -254,10 +274,6 @@
   background-color: rgba(102, 102, 102, 0.5);
   width: 100%;
   height: 100%;
-}
-
-.trix-editor {
-  height: 400px;
 }
 
 .App-footer {
