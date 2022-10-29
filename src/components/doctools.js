@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 
 import Editor from './editor';
 import docsModel from '../models/docs';
+import pdfModel from '../models/pdf';
 
 function DocToolbar() {
     const [docs, setDocs] = useState([]);
@@ -73,7 +74,9 @@ function DocToolbar() {
         setActiveDocName(loadedDoc.name);
         setDocLoaded(true);
         const docPermission = document.getElementById("openPermission");
+        const pdfButton = document.getElementById("createPDF");
         docPermission.style.display = "block";
+        pdfButton.style.display = "block";
     }
 
     function closeLoadedDoc() {
@@ -82,7 +85,9 @@ function DocToolbar() {
         closePermission();
         setCurrentDoc({});
         const docPermission = document.getElementById("openPermission");
+        const pdfButton = document.getElementById("createPDF");
         docPermission.style.display = "none";
+        pdfButton.style.display = "none";
     }
 
     async function loadDoc() {
@@ -177,6 +182,11 @@ function DocToolbar() {
         }
     }
 
+    async function createPDF() {
+        const trixEditor = document.querySelector("trix-editor");
+        pdfModel.savePDF(trixEditor, currentDoc.name);
+    }
+
     async function reloadDocSelect() {
         const allDocs = await docsModel.getDocNameList();
         setDocs(allDocs);
@@ -212,6 +222,9 @@ function DocToolbar() {
         <div id="docInfo">
             <p id="activeDoc">{activeDocName}</p>
             <button id="openPermission" name="openPermission" onClick={openPermission} title="Change document permissions" readOnly>&#128101;</button>
+            <button id="createPDF" name="createPDF" onClick={createPDF} title="Save the document as a PDF" readOnly>
+                <img src="https://cdn-icons-png.flaticon.com/512/29/29099.png" alt="pdf"></img>
+            </button>
         </div>
         <div id="docPermission">
             <div id="permissionHeader">

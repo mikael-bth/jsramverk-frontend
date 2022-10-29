@@ -110,8 +110,22 @@
 
 #openPermission {
   display: none;
+  float: left;
   font-size: 16px;
-  margin-top: 8px;
+  margin: 10px 5px 0 0;
+}
+
+#createPDF {
+  display: none;
+  margin: 10px 5px 0 0;
+  height: 29px;
+  width: 29px;
+  padding: 0;
+}
+
+#createPDF img {
+  height: 25px;
+  width: 25px;
 }
 
 #docPermission {
