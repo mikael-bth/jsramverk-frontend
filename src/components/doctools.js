@@ -10,7 +10,7 @@ function DocToolbar() {
     const [currentDoc, setCurrentDoc] = useState({});
     const [activeDocName, setActiveDocName] = useState("");
     const [socket, setSocket] = useState(null);
-    const [docLoaded, setDocLoaded] = useState(false);
+    const [updateDB, setUpdateDB] = useState(false);
     const cursorPos = useRef([]);
     const [docUsers, setDocUsers] = useState([]);
 
@@ -45,8 +45,8 @@ function DocToolbar() {
     }, [currentDoc]);
 
     async function handleEditorChange(html, text) {
-        console.log(docLoaded);
-        if (docLoaded) {
+        if (updateDB) {
+            console.log("here");
             const updatedDoc = currentDoc;
             updatedDoc.html = html;
             socket.emit("doc", updatedDoc);
@@ -60,11 +60,7 @@ function DocToolbar() {
         trixEditor.editor.setSelectedRange(0, 0);
         trixEditor.innerHTML = html;
         trixEditor.editor.setSelectedRange(cursorPos.current);
-    }
-
-    function clearEditorText() {
-        const trixEditor = document.querySelector("trix-editor");
-        trixEditor.innerHTML = "";
+        console.log(trixEditor.editor.getDocument().toString());
     }
 
     function openLoadedDoc(loadedDoc) {
@@ -79,7 +75,7 @@ function DocToolbar() {
     }
 
     async function loadDoc() {
-        setDocLoaded(false);
+        setUpdateDB(false);
         const docSelect = document.getElementById("docSelect");
         const selectedDoc = docSelect.options[docSelect.selectedIndex].value;
         if (selectedDoc === "-99") {
@@ -89,14 +85,14 @@ function DocToolbar() {
         try {
             const loadedDoc = await docsModel.getDoc(selectedDoc);
             openLoadedDoc(loadedDoc[0]);
-            setDocLoaded(true);
+            setUpdateDB(true);
         } catch (error) {
             alert(error);
         }
     }
 
     async function createDoc() {
-        setDocLoaded(false);
+        setUpdateDB(false);
         const docName = document.getElementById("name").value;
 
         if (docName === "") {
@@ -116,11 +112,10 @@ function DocToolbar() {
             await docsModel.createDoc(newDoc);
             const createdDoc = await docsModel.getDoc(newDoc.name);
             openLoadedDoc(createdDoc[0]);
-            setDocLoaded(true);
+            setUpdateDB(true);
         } catch (error) {
             alert(error);
         }
-        
         closeCreate();
 
         function nameTaken() {
@@ -172,6 +167,21 @@ function DocToolbar() {
             window.location.reload();
             alert(e);
         }
+    }
+
+    function getLineElements() {
+        let elementList = [];
+        if (Object.keys(currentDoc).length !== 0) {
+            const trixEditor = document.querySelector("trix-editor");
+            const documentString = trixEditor.editor.getDocument().toString();
+            const documentLines = documentString.split(/\r?\n/).length;
+            for (let i = 0; i < documentLines - 1; i++) {
+                elementList.push(<p id={i} key={i}>+</p>)
+            }
+            return elementList;
+        }
+        return
+        
     }
 
     async function createPDF() {
@@ -249,8 +259,8 @@ function DocToolbar() {
     <div className="editorContainer">
         <Editor handleChange={handleEditorChange}></Editor>
         <div className="commentsContainer">
-            <div>
-
+            <div id="linesMarker">
+                { getLineElements() }
             </div>
             <div>
                 <h2>Comments</h2>

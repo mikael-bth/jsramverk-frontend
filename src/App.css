@@ -15,6 +15,9 @@ trix-editor {
   max-height: 550px;
   overflow-y: scroll;
 }
+trix-editor div {
+  font-size: 16px;
+}
 
 trix-editor::-webkit-scrollbar {
   display: none;
@@ -23,6 +26,12 @@ trix-editor::-webkit-scrollbar {
 .commentsContainer {
   display: grid;
   grid-template-columns: 10% 90%;
+}
+
+.commentsContainer #linesMarker p {
+  margin: 0 10px;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .commentsContainer h2 {
