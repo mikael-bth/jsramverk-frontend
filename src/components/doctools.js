@@ -15,19 +15,12 @@ function DocToolbar() {
 
     if (sessionStorage.getItem("logOut")) {
         sessionStorage.removeItem("logOut");
-        const trixEditor = document.querySelector("trix-editor");
-        const docPermission = document.getElementById("openPermission");
-        trixEditor.innerHTML = "";
-        trixEditor.editor.setSelectedRange(0, 0);
-        docPermission.style.display = "none";
-        setActiveDocName("");
-        setCurrentDoc({})
+        closeLoadedDoc();
     }
 
     useEffect(() => {
         (async () => {
             const allDocs = await docsModel.getDocNameList();
-            console.log(allDocs);
             setDocs(allDocs);
         })();
         const socket = io(docsModel.getURL());
@@ -50,14 +43,6 @@ function DocToolbar() {
         };
     }, [currentDoc]);
 
-    function setEditorText(html) {
-        const trixEditor = document.querySelector("trix-editor");
-        cursorPos.current = trixEditor.editor.getSelectedRange();
-        trixEditor.editor.setSelectedRange(0, 0);
-        trixEditor.innerHTML = html;
-        trixEditor.editor.setSelectedRange(cursorPos.current);
-    }
-
     async function handleEditorChange(html, text) {
         if (docLoaded) {
             const updatedDoc = currentDoc;
@@ -67,38 +52,55 @@ function DocToolbar() {
         }
     }
 
-    async function loadDoc() {
+    function setEditorText(html) {
+        const trixEditor = document.querySelector("trix-editor");
+        cursorPos.current = trixEditor.editor.getSelectedRange();
+        trixEditor.editor.setSelectedRange(0, 0);
+        trixEditor.innerHTML = html;
+        trixEditor.editor.setSelectedRange(cursorPos.current);
+    }
+
+    function clearEditorText() {
+        const trixEditor = document.querySelector("trix-editor");
+        trixEditor.innerHTML = "";
+    }
+
+    function openLoadedDoc(loadedDoc) {
         setDocLoaded(false);
+        setCurrentDoc(loadedDoc);
+        setDocUsers(loadedDoc.users);
+        setEditorText(loadedDoc.html);
+        setActiveDocName(loadedDoc.name);
+        setDocLoaded(true);
+        const docPermission = document.getElementById("openPermission");
+        docPermission.style.display = "block";
+    }
+
+    function closeLoadedDoc() {
+        clearEditorText();
+        setActiveDocName("");
+        closePermission();
+        setCurrentDoc({});
+        const docPermission = document.getElementById("openPermission");
+        docPermission.style.display = "none";
+    }
+
+    async function loadDoc() {
         const docSelect = document.getElementById("docSelect");
         const selectedDoc = docSelect.options[docSelect.selectedIndex].value;
         if (selectedDoc === "-99") {
             return;
         }
 
-        const trixEditor = document.querySelector("trix-editor");
-        const docPermission = document.getElementById("openPermission");
         try {
             const loadedDoc = await docsModel.getDoc(selectedDoc);
-            setCurrentDoc(loadedDoc[0]);
-            setDocUsers(loadedDoc[0].users);
-            trixEditor.innerHTML = loadedDoc[0].html;
-            setActiveDocName(loadedDoc[0].name);
-            docPermission.style.display = "block";
-            setDocLoaded(true);
+            openLoadedDoc(loadedDoc[0]);
         } catch (error) {
             alert(error);
         }
     }
 
-    async function openCreate() {
-        const createWindow = document.getElementById("docCreate");
-        const createBG = document.getElementById("docCreateBG");
-        createWindow.style.display = "flex"
-        createBG.style.display = "block"
-    }
-
     async function createDoc() {
-        setDocLoaded(false);
         const docName = document.getElementById("name").value;
 
         if (docName === "") {
@@ -110,22 +112,14 @@ function DocToolbar() {
             return;
         }
 
-        const docPermission = document.getElementById("openPermission");
-        const trixEditor = document.querySelector("trix-editor");
-
-        let newDoc = {
+        const newDoc = {
             name: docName,
             html: ""
         }
         try {
             await docsModel.createDoc(newDoc);
             const createdDoc = await docsModel.getDoc(newDoc.name);
-            setCurrentDoc(createdDoc[0]);
-            setDocUsers(createdDoc[0].users);
-            setActiveDocName(docName);
-            trixEditor.innerHTML = "";
-            docPermission.style.display = "block";
-            setDocLoaded(true);
+            openLoadedDoc(createdDoc[0]);
         } catch (error) {
             alert(error);
         }
@@ -141,28 +135,6 @@ function DocToolbar() {
             }
             return taken;
         }
-    }
-
-    async function reloadDocSelect() {
-        const allDocs = await docsModel.getDocNameList();
-        setDocs(allDocs);
-    }
-
-    function closeCreate() {
-        const createWindow = document.getElementById("docCreate");
-        const createBG = document.getElementById("docCreateBG");
-        createWindow.style.display = "none"
-        createBG.style.display = "none"
-    }
-
-    function openPermission() {
-        const permissionWindow = document.getElementById("docPermission");
-        permissionWindow.style.display = "block";
-    }
-
-    function closePermission() {
-        const permissionWindow = document.getElementById("docPermission");
-        permissionWindow.style.display = "none";
     }
 
     async function addUserPermission() {
@@ -195,22 +167,43 @@ function DocToolbar() {
             method: "remove"
         }
         await docsModel.updatePermission(update);
-        let updatedDoc
         try {
-            updatedDoc = await docsModel.getDoc(currentDoc.name);
+            const updatedDoc = await docsModel.getDoc(currentDoc.name);
+            setCurrentDoc(updatedDoc[0]);
+            setDocUsers(updatedDoc[0].users);
         } catch (e) {
             alert(e);
-            const docPermission = document.getElementById("openPermission");
-            const trixEditor = document.querySelector("trix-editor");
-            trixEditor.innerHTML = "";
-            setActiveDocName("");
-            docPermission.style.display = "none";
-            closePermission();
-            setCurrentDoc({});
-            return;
+            closeLoadedDoc();
         }
-        setCurrentDoc(updatedDoc[0]);
-        setDocUsers(updatedDoc[0].users);
+    }
+
+    async function reloadDocSelect() {
+        const allDocs = await docsModel.getDocNameList();
+        setDocs(allDocs);
+    }
+
+    async function openCreate() {
+        const createWindow = document.getElementById("docCreate");
+        const createBG = document.getElementById("docCreateBG");
+        createWindow.style.display = "flex"
+        createBG.style.display = "block"
+    }
+
+    function closeCreate() {
+        const createWindow = document.getElementById("docCreate");
+        const createBG = document.getElementById("docCreateBG");
+        createWindow.style.display = "none"
+        createBG.style.display = "none"
+    }
+
+    function openPermission() {
+        const permissionWindow = document.getElementById("docPermission");
+        permissionWindow.style.display = "block";
+    }
+
+    function closePermission() {
+        const permissionWindow = document.getElementById("docPermission");
+        permissionWindow.style.display = "none";
     }
 
     return <div>
