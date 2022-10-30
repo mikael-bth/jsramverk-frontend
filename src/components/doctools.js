@@ -196,10 +196,36 @@ function DocToolbar() {
                 comment: comment
             }
         }
-        await commentsModel.createComment(newComment);
+
+        try {
+            await commentsModel.createComment(newComment);
+        } catch (e) {
+            alert(e);
+            return;
+        }
         const updatedComments = await commentsModel.getDocComments(activeDocName);
         setDocComments(updatedComments);
         closeNewComment();
+    }
+
+    async function removeComment(data) {
+        const commentData = data.target.id.split(" ");
+        const commentIndex = commentData[0];
+        const commentLine = commentData[1];
+        const comment = {
+            name: activeDocName,
+            index: commentIndex,
+            line: commentLine,
+        };
+
+        try {
+            await commentsModel.removeComment(comment);
+        } catch (e) {
+            alert(e);
+            return;
+        }
+        const updatedComments = await commentsModel.getDocComments(activeDocName);
+        setDocComments(updatedComments);
     }
 
     function filteredDocComments() {
@@ -224,6 +250,7 @@ function DocToolbar() {
             const lineArray = filteredComments[key];
             const lineElement =  <input value={`Rad ${key} kommentarer`} id={key} className="lineInput" key={key} onClick={showLineComments} readOnly></input>
             const comments = lineArray.map((comment, index) => <div className={"lineComment" + key} id="lineComment" key={index}>
+                <button id={`${index} ${key}`} name="removeComment" title="Remove comment" onClick={removeComment}>&#10006;</button>
                 <h3>{comment.author}:</h3>
                 <p>{comment.comment}</p>
             </div>);

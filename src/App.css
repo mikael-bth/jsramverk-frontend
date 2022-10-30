@@ -102,7 +102,7 @@ trix-editor::-webkit-scrollbar {
 }
 
 .commentsContainer {
-  max-height: 400px;
+  max-height: 480px;
   overflow-y: scroll;
 }
 
@@ -134,17 +134,26 @@ trix-editor::-webkit-scrollbar {
   justify-self: left;
 }
 
-.lineComment h3 {
+#lineComment h3 {
   margin: 10px 0 5px 0;
 }
 
-.lineComment p {
+#lineComment p {
   margin: 0 0 10px 0;
   max-height: 80px;
   overflow-y: scroll;
 }
 
-.lineComment p::-webkit-scrollbar {
+#lineComment button {
+  float: right;
+  margin: 10px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: rgb(235, 86, 41);
+}
+
+#lineComment p::-webkit-scrollbar {
   display: none;
 }
 

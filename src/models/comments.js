@@ -38,7 +38,29 @@ const comments = {
             'x-access-token': token},
             body: JSON.stringify(newComment)
         });
-        return await response.json();
+        const result = await response.json();
+        if (result.message) {
+            throw new Error(result.message);
+        }
+        return result;
+    },
+
+    removeComment: async function removeComment(comment) {
+        const token = usersModel.getToken();
+        if (!token) {
+            throw new Error("Need to be logged in to do this.")
+        }
+        const response = await fetch(`${SERVER_URL}removecomment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+            'x-access-token': token},
+            body: JSON.stringify(comment)
+        });
+        const result = await response.json();
+        if (result.message) {
+            throw new Error(result.message);
+        }
+        return result;
     },
 };
 
