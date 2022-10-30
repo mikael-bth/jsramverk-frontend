@@ -23,19 +23,129 @@ trix-editor::-webkit-scrollbar {
   display: none;
 }
 
-.commentsContainer {
+.editorSidebar {
   display: grid;
   grid-template-columns: 10% 90%;
 }
 
-.commentsContainer #linesMarker p {
-  margin: 0 10px;
+.editorSidebar #linesMarker p {
+  margin: 0;
+  padding: 0 5px 0 5px;
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 750;
+  color: rgb(26, 207, 147);
+  text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;
+  cursor: pointer;
 }
 
-.commentsContainer h2 {
+.editorSidebar h2 {
   text-align: center;
+  margin: 5px 0 5px;
+}
+
+#newComment {
+  display: none;
+  position: absolute; 
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: space-around;
+  top: calc(50% - 150px);
+  left: calc(50% - (270px / 2));
+  height: 300px;
+  width: 270px;
+  background-color: rgb(129, 129, 129);
+  border: 1px solid #000;
+  z-index: 2;
+}
+
+#newComment #commentLine {
+  display: none;
+}
+
+#newComment #newCommentInfo {
+  text-align: center;
+  height: 45px;
+  width: 200px;
+  font-size: 16px;
+  margin: 0em;
+  padding: 1px 2px;
+  border-width: 2px;
+  border-style: inset;
+  color: fieldtext;
+  background-color: field;
+}
+
+#newComment #comment {
+  height: 70px;
+  width: 200px;
+  font-size: 16px;
+}
+
+#newComment #createComment {
+  height: 60px;
+  width: 120px;
+  border-radius: 10%;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#newCommentBG {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  background-color: rgba(102, 102, 102, 0.5);
+  width: 100%;
+  height: 100%;
+}
+
+.commentsContainer {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+.commentsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.comments {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.lineInput {
+  justify-self: center;
+  text-align: center;
+  font-size: 16px;
+  height: 40px;
+  width: 95%;
+  border-radius: 10px;
+  background-color: rgb(26, 207, 147);
+  cursor: pointer;
+}
+
+#lineComment {
+  display: none;
+  width: 95%;
+  border-bottom: 1px solid #000;
+  justify-self: left;
+}
+
+.lineComment h3 {
+  margin: 10px 0 5px 0;
+}
+
+.lineComment p {
+  margin: 0 0 10px 0;
+  max-height: 80px;
+  overflow-y: scroll;
+}
+
+.lineComment p::-webkit-scrollbar {
+  display: none;
 }
 
 #trix-toolbar {

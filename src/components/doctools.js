@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import Editor from './editor';
 import docsModel from '../models/docs';
 import pdfModel from '../models/pdf';
+import commentsModel from "../models/comments";
 
 function DocToolbar() {
     const [docs, setDocs] = useState([]);
@@ -13,6 +14,8 @@ function DocToolbar() {
     const [updateDB, setUpdateDB] = useState(false);
     const cursorPos = useRef([]);
     const [docUsers, setDocUsers] = useState([]);
+    const [lineElemets, setLineElements] = useState([]);
+    const [docComments, setDocComments] = useState([]);
 
     if (sessionStorage.getItem("logOut")) {
         sessionStorage.removeItem("logOut");
@@ -52,6 +55,15 @@ function DocToolbar() {
             socket.emit("doc", updatedDoc);
             await docsModel.updateDoc(updatedDoc);
         }
+        const trixEditor = document.querySelector("trix-editor");
+        const documentString = trixEditor.editor.getDocument().toString();
+        const documentLines = documentString.split(/\r?\n/).length;
+        let elementList = [];
+        for (let i = 1; i < documentLines; i++) {
+            elementList.push(<p id={i} key={i} onClick={openNewComment}
+                title={`Add comment on line ${i}`}>+</p>)
+        }
+        setLineElements(elementList);
     }
 
     function setEditorText(html) {
@@ -60,7 +72,6 @@ function DocToolbar() {
         trixEditor.editor.setSelectedRange(0, 0);
         trixEditor.innerHTML = html;
         trixEditor.editor.setSelectedRange(cursorPos.current);
-        console.log(trixEditor.editor.getDocument().toString());
     }
 
     function openLoadedDoc(loadedDoc) {
@@ -84,7 +95,9 @@ function DocToolbar() {
 
         try {
             const loadedDoc = await docsModel.getDoc(selectedDoc);
+            const docComments = await commentsModel.getDocComments(selectedDoc);
             openLoadedDoc(loadedDoc[0]);
+            setDocComments(docComments);
             setUpdateDB(true);
         } catch (error) {
             alert(error);
@@ -111,7 +124,9 @@ function DocToolbar() {
         try {
             await docsModel.createDoc(newDoc);
             const createdDoc = await docsModel.getDoc(newDoc.name);
+            const docComments = await commentsModel.getDocComments(newDoc.name);
             openLoadedDoc(createdDoc[0]);
+            setDocComments(docComments);
             setUpdateDB(true);
         } catch (error) {
             alert(error);
@@ -169,19 +184,68 @@ function DocToolbar() {
         }
     }
 
-    function getLineElements() {
-        let elementList = [];
-        if (Object.keys(currentDoc).length !== 0) {
-            const trixEditor = document.querySelector("trix-editor");
-            const documentString = trixEditor.editor.getDocument().toString();
-            const documentLines = documentString.split(/\r?\n/).length;
-            for (let i = 0; i < documentLines - 1; i++) {
-                elementList.push(<p id={i} key={i}>+</p>)
+    async function addComment() {
+        const commentLine = document.getElementById("commentLine");
+        const commentElement = document.getElementById("comment");
+        const line = commentLine.innerHTML;
+        const comment = commentElement.value;
+        const newComment = {
+            name: activeDocName,
+            comment: {
+                line: line,
+                comment: comment
             }
-            return elementList;
         }
-        return
-        
+        await commentsModel.createComment(newComment);
+        const updatedComments = await commentsModel.getDocComments(activeDocName);
+        setDocComments(updatedComments);
+        closeNewComment();
+    }
+
+    function filteredDocComments() {
+        if (docComments.length === 0 || docComments.comments.length === 0) {
+            return [];
+        }
+
+        const filteredComments = {};
+        for (const comment of docComments.comments) {
+            const commentInstance = {
+                comment: comment.comment,
+                author: comment.author
+            }
+            if (filteredComments.hasOwnProperty(comment.line)) {
+                filteredComments[comment.line].push(commentInstance);
+                continue;
+            }
+            filteredComments[comment.line] = [commentInstance];
+        }
+        const commentElements = [];
+        for (const key in filteredComments) {
+            const lineArray = filteredComments[key];
+            const lineElement =  <input value={`Rad ${key} kommentarer`} id={key} className="lineInput" key={key} onClick={showLineComments} readOnly></input>
+            const comments = lineArray.map((comment, index) => <div className={"lineComment" + key} id="lineComment" key={index}>
+                <h3>{comment.author}:</h3>
+                <p>{comment.comment}</p>
+            </div>);
+            const commentElement = []
+            commentElement.push(lineElement);
+            commentElement.push(comments);
+            commentElements.push(commentElement);
+        }
+        return commentElements;
+    }
+
+    function showLineComments(data) {
+        const line = data.target.id;
+        const comments = document.getElementsByClassName(`lineComment${line}`);
+        for (const comment of comments) {
+            const commentStyle = getComputedStyle(comment);
+            if (commentStyle.display === "block") {
+                comment.setAttribute("style", "display:none;");
+                continue;
+            }
+            comment.setAttribute("style", "display:block;");
+        }
     }
 
     async function createPDF() {
@@ -216,6 +280,25 @@ function DocToolbar() {
     function closePermission() {
         const permissionWindow = document.getElementById("docPermission");
         permissionWindow.style.display = "none";
+    }
+
+    function openNewComment(data) {
+        const createWindow = document.getElementById("newComment");
+        const createBG = document.getElementById("newCommentBG");
+        const commentInfo = document.getElementById("newCommentInfo");
+        const commentLine = document.getElementById("commentLine");
+        const line = data.target.id;
+        commentInfo.innerHTML = `Lägg till kommentar<br>Rad: ${line}`;
+        commentLine.innerHTML = line;
+        createWindow.style.display = "flex";
+        createBG.style.display = "block";
+    }
+
+    function closeNewComment() {
+        const createWindow = document.getElementById("newComment");
+        const createBG = document.getElementById("newCommentBG");
+        createWindow.style.display = "none";
+        createBG.style.display = "none";
     }
 
     return <div>
@@ -255,15 +338,25 @@ function DocToolbar() {
             <input id="name" name="name" type="text" placeholder="NAMN"></input>
             <input id="create" name="create" value={"Skapa"} onClick={createDoc} readOnly></input>
         </div>
+        <div id="newCommentBG" onClick={closeNewComment}></div>
+        <div id="newComment">
+            <p id="commentLine"></p>
+            <p id="newCommentInfo"></p>
+            <textarea id="comment" name="comment" wrap="soft" placeholder="KOMMENTAR"></textarea>
+            <input id="createComment" name="createComment" value={"Lägg till"} onClick={addComment} readOnly></input>
+        </div>
     </div>
     <div className="editorContainer">
         <Editor handleChange={handleEditorChange}></Editor>
-        <div className="commentsContainer">
+        <div className="editorSidebar">
             <div id="linesMarker">
-                { getLineElements() }
+                { lineElemets }
             </div>
             <div>
                 <h2>Comments</h2>
+                <div className="commentsContainer">
+                    {filteredDocComments().map((comment, index) => <div className="comments" key={index} readOnly>{comment}</div>)}
+                </div>
             </div>
         </div>
     </div>
