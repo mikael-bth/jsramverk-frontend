@@ -1,8 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { TrixEditor } from "react-trix";
-import "trix";
 import App from './App';
-import pdf from './models/pdf';
 
 test('Load document button exists ', () => {
   render(<App />);

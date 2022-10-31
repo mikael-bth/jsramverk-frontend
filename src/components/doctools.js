@@ -49,7 +49,6 @@ function DocToolbar() {
 
     async function handleEditorChange(html, text) {
         if (updateDB) {
-            console.log("here");
             const updatedDoc = currentDoc;
             updatedDoc.html = html;
             socket.emit("doc", updatedDoc);
@@ -277,7 +276,9 @@ function DocToolbar() {
 
     async function createPDF() {
         const trixEditor = document.querySelector("trix-editor");
+        trixEditor.setAttribute("style", "padding: 0;");
         pdfModel.savePDF(trixEditor, currentDoc.name);
+        trixEditor.setAttribute("style", "padding: 6.4px 9.6px;");
     }
 
     async function reloadDocSelect() {
@@ -375,10 +376,10 @@ function DocToolbar() {
     </div>
     <div className="editorContainer">
         <Editor handleChange={handleEditorChange}></Editor>
+        <div id="linesMarker">
+            { lineElemets }
+        </div>
         <div className="editorSidebar">
-            <div id="linesMarker">
-                { lineElemets }
-            </div>
             <div>
                 <h2>Comments</h2>
                 <div className="commentsContainer">

@@ -6,14 +6,18 @@
 }
 
 .editorContainer {
-  display: grid;
-  grid-template-columns: 80% 20%;
+  margin: 10px 0;
+  padding: 0 10px;
+  display: flex;
+  justify-content: center;
 }
 
 trix-editor {
+  width: 30cm;
   min-height: 500px;
-  max-height: 550px;
+  font-size: 16px;
   overflow-y: scroll;
+  margin: auto;
 }
 trix-editor div {
   font-size: 16px;
@@ -24,13 +28,22 @@ trix-editor::-webkit-scrollbar {
 }
 
 .editorSidebar {
+  width: 60%;
   display: grid;
-  grid-template-columns: 10% 90%;
 }
 
-.editorSidebar #linesMarker p {
-  margin: 0;
-  padding: 0 5px 0 5px;
+.editorSidebar>div {
+  width: 50%;
+  justify-self: right;
+}
+
+#linesMarker {
+  width: 10%;
+  padding-top: 6.4px;
+}
+
+#linesMarker p {
+  margin: 0 0 0 10px;
   font-size: 16px;
   font-weight: 750;
   color: rgb(26, 207, 147);
