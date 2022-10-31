@@ -7,7 +7,7 @@ const pdf = {
         const pdf = new jsPdf({
             format: 'a2'
         });
-        pdf.text(documentText, 10, 10);
+        pdf.text(documentText, 5, 10);
         pdf.setFontSize(16);
         pdf.save(`${docName}.pdf`);
     },
